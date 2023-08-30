@@ -1,0 +1,36 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres:14.2-alpine
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "$POSTGRES_PORT:$POSTGRES_PORT_EXPOSED"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  server:
+    image: cosmtrek/air
+    working_dir: /project-package
+    ports:
+      - "$WS_PORT:$WS_PORT_EXPOSED"
+    env_file:
+      - .env
+    volumes:
+      - $PWD:/project-package/
+    depends_on:
+      - db
+    networks:
+      - backend
+
+volumes:
+  db-data:
+
+networks:
+  backend:
+    driver: bridge
